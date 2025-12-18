@@ -58,8 +58,6 @@ jobs:
         run: |
           cd lib
           yarn run build
-          cd ../examples
-          yarn run build
 
       - name: Run PPX tests
         run: opam exec -- dune exec test.exe
@@ -120,8 +118,6 @@ jobs:
       - name: Build ReScript lib
         run: |
           cd lib
-          yarn run build
-          cd ../examples
           yarn run build
 
       - name: Run PPX tests
@@ -185,8 +181,6 @@ jobs:
       - name: Build ReScript lib
         run: |
           cd lib
-          yarn run build
-          cd ../examples
           yarn run build
 
       - name: Upload artifacts
