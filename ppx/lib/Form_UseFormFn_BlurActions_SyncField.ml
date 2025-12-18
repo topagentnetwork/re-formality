@@ -2,13 +2,13 @@ open Meta
 open Ppxlib
 
 let ast
-  ~loc
-  ~(validator : (FieldValidator.sync, unit) result)
-  ~(metadata : unit option)
-  ~(field_status_expr : expression)
-  ~(field_input_expr : expression)
-  ~(validator_expr : expression)
-  ~(set_status_expr : expression)
+      ~loc
+      ~(validator : (FieldValidator.sync, unit) result)
+      ~(metadata : unit option)
+      ~(field_status_expr : expression)
+      ~(field_input_expr : expression)
+      ~(validator_expr : expression)
+      ~(set_status_expr : expression)
   =
   [%expr
     let result =
@@ -24,8 +24,7 @@ let ast
                  ~validator:[%e validator_expr]
                  ~setStatus:
                    [%e
-                     Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]
-               [@res.uapp]]
+                     Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]]
            | Some () ->
              [%expr
                validateFieldOnBlurWithValidatorAndMetadata
@@ -35,16 +34,14 @@ let ast
                  ~validator:[%e validator_expr]
                  ~setStatus:
                    [%e
-                     Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]
-               [@res.uapp]])
+                     Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]])
         | Ok (Optional None) ->
           [%expr
             validateFieldOnBlurWithoutValidator
               ~fieldInput:[%e field_input_expr]
               ~fieldStatus:[%e field_status_expr]
               ~setStatus:
-                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]
-            [@res.uapp]]]
+                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]]]
     in
     match result with
     | Some fieldsStatuses -> Update { state with fieldsStatuses }

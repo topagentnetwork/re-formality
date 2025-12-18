@@ -3,14 +3,14 @@ open AstHelpers
 open Ppxlib
 
 let ast
-  ~loc
-  ~(field : Scheme.field)
-  ~(collection : Collection.t)
-  ~(metadata : unit option)
-  ~(optionality : FieldOptionality.t option)
-  ~(field_status_expr : expression)
-  ~(validator_expr : expression)
-  ~(set_status_expr : expression)
+      ~loc
+      ~(field : Scheme.field)
+      ~(collection : Collection.t)
+      ~(metadata : unit option)
+      ~(optionality : FieldOptionality.t option)
+      ~(field_status_expr : expression)
+      ~(validator_expr : expression)
+      ~(set_status_expr : expression)
   =
   [%expr
     let result =
@@ -24,8 +24,7 @@ let ast
               ~fieldStatus:[%e field_status_expr]
               ~validator:[%e validator_expr]
               ~setStatus:
-                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]
-            [@res.uapp]]
+                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]]
         | None, Some OptionType ->
           [%expr
             Async.validateFieldOfCollectionOfOptionTypeOnBlur
@@ -34,8 +33,7 @@ let ast
               ~fieldStatus:[%e field_status_expr]
               ~validator:[%e validator_expr]
               ~setStatus:
-                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]
-            [@res.uapp]]
+                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]]
         | None, Some StringType ->
           [%expr
             Async.validateFieldOfCollectionOfStringTypeOnBlur
@@ -44,8 +42,7 @@ let ast
               ~fieldStatus:[%e field_status_expr]
               ~validator:[%e validator_expr]
               ~setStatus:
-                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]
-            [@res.uapp]]
+                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]]
         | None, Some OptionStringType ->
           [%expr
             Async.validateFieldOfCollectionOfOptionStringTypeOnBlur
@@ -54,8 +51,7 @@ let ast
               ~fieldStatus:[%e field_status_expr]
               ~validator:[%e validator_expr]
               ~setStatus:
-                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]
-            [@res.uapp]]
+                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]]
         | Some (), None ->
           [%expr
             Async.validateFieldOfCollectionOnBlurWithMetadata
@@ -65,8 +61,7 @@ let ast
               ~validator:[%e validator_expr]
               ~metadata
               ~setStatus:
-                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]
-            [@res.uapp]]
+                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]]
         | Some (), Some OptionType ->
           [%expr
             Async.validateFieldOfCollectionOfOptionTypeOnBlurWithMetadata
@@ -76,8 +71,7 @@ let ast
               ~validator:[%e validator_expr]
               ~metadata
               ~setStatus:
-                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]
-            [@res.uapp]]
+                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]]
         | Some (), Some StringType ->
           [%expr
             Async.validateFieldOfCollectionOfStringTypeOnBlurWithMetadata
@@ -87,8 +81,7 @@ let ast
               ~validator:[%e validator_expr]
               ~metadata
               ~setStatus:
-                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]
-            [@res.uapp]]
+                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]]
         | Some (), Some OptionStringType ->
           [%expr
             Async.validateFieldOfCollectionOfOptionStringTypeOnBlurWithMetadata
@@ -98,8 +91,7 @@ let ast
               ~validator:[%e validator_expr]
               ~metadata
               ~setStatus:
-                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]
-            [@res.uapp]]]
+                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]]]
     in
     match result with
     | None -> NoUpdate

@@ -17,3 +17,4 @@ yarn-error.log
 /specs/lib/
 /ppx/test/**/*.cm[itj]
 re-formality-ppx.install
+/_opam

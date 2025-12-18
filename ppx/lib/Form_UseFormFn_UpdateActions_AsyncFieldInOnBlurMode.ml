@@ -2,12 +2,12 @@ open Meta
 open Ppxlib
 
 let ast
-  ~loc
-  ~(metadata : unit option)
-  ~(optionality : FieldOptionality.t option)
-  ~(field_status_expr : expression)
-  ~(validator_expr : expression)
-  ~(set_status_expr : expression)
+      ~loc
+      ~(metadata : unit option)
+      ~(optionality : FieldOptionality.t option)
+      ~(field_status_expr : expression)
+      ~(validator_expr : expression)
+      ~(set_status_expr : expression)
   =
   [%expr
     Update
@@ -28,7 +28,7 @@ let ast
                       Uncurried.fn
                         ~loc
                         ~arity:1
-                        [%expr fun status -> [%e set_status_expr]]] [@res.uapp]]
+                        [%expr fun status -> [%e set_status_expr]]]]
             | None, Some OptionType ->
               [%expr
                 Async.validateFieldOfOptionTypeOnChangeInOnBlurMode
@@ -41,7 +41,7 @@ let ast
                       Uncurried.fn
                         ~loc
                         ~arity:1
-                        [%expr fun status -> [%e set_status_expr]]] [@res.uapp]]
+                        [%expr fun status -> [%e set_status_expr]]]]
             | None, Some StringType ->
               [%expr
                 Async.validateFieldOfStringTypeOnChangeInOnBlurMode
@@ -54,7 +54,7 @@ let ast
                       Uncurried.fn
                         ~loc
                         ~arity:1
-                        [%expr fun status -> [%e set_status_expr]]] [@res.uapp]]
+                        [%expr fun status -> [%e set_status_expr]]]]
             | None, Some OptionStringType ->
               [%expr
                 Async.validateFieldOfOptionStringTypeOnChangeInOnBlurMode
@@ -67,7 +67,7 @@ let ast
                       Uncurried.fn
                         ~loc
                         ~arity:1
-                        [%expr fun status -> [%e set_status_expr]]] [@res.uapp]]
+                        [%expr fun status -> [%e set_status_expr]]]]
             | Some (), None ->
               [%expr
                 Async.validateFieldOnChangeInOnBlurModeWithMetadata
@@ -81,7 +81,7 @@ let ast
                       Uncurried.fn
                         ~loc
                         ~arity:1
-                        [%expr fun status -> [%e set_status_expr]]] [@res.uapp]]
+                        [%expr fun status -> [%e set_status_expr]]]]
             | Some (), Some OptionType ->
               [%expr
                 Async.validateFieldOfOptionTypeOnChangeInOnBlurModeWithMetadata
@@ -95,7 +95,7 @@ let ast
                       Uncurried.fn
                         ~loc
                         ~arity:1
-                        [%expr fun status -> [%e set_status_expr]]] [@res.uapp]]
+                        [%expr fun status -> [%e set_status_expr]]]]
             | Some (), Some StringType ->
               [%expr
                 Async.validateFieldOfStringTypeOnChangeInOnBlurModeWithMetadata
@@ -109,7 +109,7 @@ let ast
                       Uncurried.fn
                         ~loc
                         ~arity:1
-                        [%expr fun status -> [%e set_status_expr]]] [@res.uapp]]
+                        [%expr fun status -> [%e set_status_expr]]]]
             | Some (), Some OptionStringType ->
               [%expr
                 Async.validateFieldOfOptionStringTypeOnChangeInOnBlurModeWithMetadata
@@ -123,6 +123,6 @@ let ast
                       Uncurried.fn
                         ~loc
                         ~arity:1
-                        [%expr fun status -> [%e set_status_expr]]] [@res.uapp]]]
+                        [%expr fun status -> [%e set_status_expr]]]]]
       }]
 ;;

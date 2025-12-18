@@ -27,34 +27,29 @@ let ast ~(scheme : Scheme.t) ~(async : bool) ~(metadata : unit option) ~loc =
   let body =
     [%expr
       let memoizedInitialState =
-        (React.useMemo1
-           [%e
-             Uncurried.fn
-               ~loc
-               ~arity:1
-               [%expr fun () -> (initialState initialInput [@res.uapp])]]
-           [| initialInput |] [@res.uapp])
+        React.useMemo1
+          [%e Uncurried.fn ~loc ~arity:1 [%expr fun () -> initialState initialInput]]
+          [| initialInput |]
       in
       let state, dispatch =
         let open ReactUpdate in
-        (useReducer
-           memoizedInitialState
-           [%e
-             Uncurried.fn
-               ~loc
-               ~arity:2
-               [%expr
-                 fun state action ->
-                   [%e
-                     Exp.match_
-                       ~attrs:[ warning_4_disable ~loc ]
-                       [%expr action]
-                       (RestActions.ast ~loc ~async ~metadata
-                        |> List.rev_append (CollectionsActions.ast ~loc ~metadata scheme)
-                        |> List.rev_append (ApplyAsyncResultActions.ast ~loc scheme)
-                        |> List.rev_append (BlurActions.ast ~loc ~metadata scheme)
-                        |> List.rev_append (UpdateActions.ast ~loc ~metadata scheme))]]]
-         [@res.uapp])
+        useReducer
+          memoizedInitialState
+          [%e
+            Uncurried.fn
+              ~loc
+              ~arity:2
+              [%expr
+                fun state action ->
+                  [%e
+                    Exp.match_
+                      ~attrs:[ warning_4_disable ~loc ]
+                      [%expr action]
+                      (RestActions.ast ~loc ~async ~metadata
+                       |> List.rev_append (CollectionsActions.ast ~loc ~metadata scheme)
+                       |> List.rev_append (ApplyAsyncResultActions.ast ~loc scheme)
+                       |> List.rev_append (BlurActions.ast ~loc ~metadata scheme)
+                       |> List.rev_append (UpdateActions.ast ~loc ~metadata scheme))]]]
       in
       [%e Form_UseFormFn_Interface.ast ~scheme ~async ~metadata ~loc]]
   in

@@ -3,43 +3,43 @@ open AstHelpers
 open Ppxlib
 
 let ast
-  ~loc
-  ~(dep : FieldDep.t)
-  ~(deps : FieldDep.t list)
-  ~(trigger :
-     [ `Field of string
-     | `Collection of Collection.t
-     | `FieldOfCollection of Collection.t * string
-     ])
-  ~(metadata : unit option)
-  (scheme : Scheme.t)
+      ~loc
+      ~(dep : FieldDep.t)
+      ~(deps : FieldDep.t list)
+      ~(trigger :
+         [ `Field of string
+         | `Collection of Collection.t
+         | `FieldOfCollection of Collection.t * string
+         ])
+      ~(metadata : unit option)
+      (scheme : Scheme.t)
   =
   let validate_dep (dep : FieldDep.t) =
     match
       scheme
       |> List.fold_left
            (fun res (entry : Scheme.entry) ->
-             match res, entry, dep with
-             | Some _, _, _ -> res
-             | None, Field field, DepField dep ->
-               (match field.name = dep with
-                | true -> Some (`DepField field)
-                | false -> None)
-             | ( None
-               , Collection { collection; fields }
-               , DepFieldOfCollection { collection = dep_collection; field = dep_field } )
-               ->
-               if collection.plural <> dep_collection.plural
-               then None
-               else
-                 Some
-                   (`DepFieldOfCollection
-                     ( collection
-                     , fields
-                       |> List.find (fun (field : Scheme.field) -> field.name = dep_field)
-                     ))
-             | None, Collection _, DepField _ | None, Field _, DepFieldOfCollection _ ->
-               res)
+              match res, entry, dep with
+              | Some _, _, _ -> res
+              | None, Field field, DepField dep ->
+                (match field.name = dep with
+                 | true -> Some (`DepField field)
+                 | false -> None)
+              | ( None
+                , Collection { collection; fields }
+                , DepFieldOfCollection { collection = dep_collection; field = dep_field }
+                ) ->
+                if collection.plural <> dep_collection.plural
+                then None
+                else
+                  Some
+                    (`DepFieldOfCollection
+                        ( collection
+                        , fields
+                          |> List.find (fun (field : Scheme.field) ->
+                            field.name = dep_field) ))
+              | None, Collection _, DepField _ | None, Field _, DepFieldOfCollection _ ->
+                res)
            None
     with
     | None ->
@@ -68,7 +68,7 @@ let ast
                          Uncurried.fn
                            ~loc
                            ~arity:1
-                           [%expr fun status -> [%e set_status_expr]]] [@res.uapp]]
+                           [%expr fun status -> [%e set_status_expr]]]]
                | Some () ->
                  [%expr
                    validateDependentFieldOnChangeWithMetadata
@@ -81,7 +81,7 @@ let ast
                          Uncurried.fn
                            ~loc
                            ~arity:1
-                           [%expr fun status -> [%e set_status_expr]]] [@res.uapp]]]
+                           [%expr fun status -> [%e set_status_expr]]]]]
            with
            | Some result -> nextFieldsStatuses := result
            | None -> ()]
@@ -102,7 +102,7 @@ let ast
                          Uncurried.fn
                            ~loc
                            ~arity:1
-                           [%expr fun status -> [%e set_status_expr]]] [@res.uapp]]
+                           [%expr fun status -> [%e set_status_expr]]]]
                | Some () ->
                  [%expr
                    Async.validateDependentFieldOnChangeWithMetadata
@@ -115,7 +115,7 @@ let ast
                          Uncurried.fn
                            ~loc
                            ~arity:1
-                           [%expr fun status -> [%e set_status_expr]]] [@res.uapp]]]
+                           [%expr fun status -> [%e set_status_expr]]]]]
            with
            | Some result -> nextFieldsStatuses := result
            | None -> ()])
@@ -168,8 +168,7 @@ let ast
                                         Uncurried.fn
                                           ~loc
                                           ~arity:1
-                                          [%expr fun status -> [%e set_status_expr]]]
-                                  [@res.uapp]]
+                                          [%expr fun status -> [%e set_status_expr]]]]
                               | Some () ->
                                 [%expr
                                   validateDependentFieldOfCollectionOnChangeWithMetadata
@@ -183,12 +182,11 @@ let ast
                                         Uncurried.fn
                                           ~loc
                                           ~arity:1
-                                          [%expr fun status -> [%e set_status_expr]]]
-                                  [@res.uapp]]]
+                                          [%expr fun status -> [%e set_status_expr]]]]]
                           with
                           | Some result -> nextFieldsStatuses := result
                           | None -> ())
-                        else ()]] [@res.uapp]]
+                        else ()]]]
           | SyncValidator (Ok (Optional None)) -> [%expr ()]
           | AsyncValidator { mode = OnChange | OnBlur } ->
             [%expr
@@ -217,8 +215,7 @@ let ast
                                         Uncurried.fn
                                           ~loc
                                           ~arity:1
-                                          [%expr fun status -> [%e set_status_expr]]]
-                                  [@res.uapp]]
+                                          [%expr fun status -> [%e set_status_expr]]]]
                               | Some () ->
                                 [%expr
                                   Async
@@ -233,12 +230,11 @@ let ast
                                         Uncurried.fn
                                           ~loc
                                           ~arity:1
-                                          [%expr fun status -> [%e set_status_expr]]]
-                                  [@res.uapp]]]
+                                          [%expr fun status -> [%e set_status_expr]]]]]
                           with
                           | Some result -> nextFieldsStatuses := result
                           | None -> ())
-                        else ()]] [@res.uapp]])
+                        else ()]]])
        | `Field _ | `Collection _ | `FieldOfCollection (_, _) ->
          (match field.validator with
           | SyncValidator (Ok (Required | Optional (Some _)) | Error ()) ->
@@ -266,8 +262,7 @@ let ast
                                       Uncurried.fn
                                         ~loc
                                         ~arity:1
-                                        [%expr fun status -> [%e set_status_expr]]]
-                                [@res.uapp]]
+                                        [%expr fun status -> [%e set_status_expr]]]]
                             | Some () ->
                               [%expr
                                 validateDependentFieldOfCollectionOnChangeWithMetadata
@@ -281,11 +276,10 @@ let ast
                                       Uncurried.fn
                                         ~loc
                                         ~arity:1
-                                        [%expr fun status -> [%e set_status_expr]]]
-                                [@res.uapp]]]
+                                        [%expr fun status -> [%e set_status_expr]]]]]
                         with
                         | Some result -> nextFieldsStatuses := result
-                        | None -> ()]] [@res.uapp]]
+                        | None -> ()]]]
           | SyncValidator (Ok (Optional None)) -> [%expr ()]
           | AsyncValidator { mode = OnChange | OnBlur } ->
             [%expr
@@ -312,8 +306,7 @@ let ast
                                       Uncurried.fn
                                         ~loc
                                         ~arity:1
-                                        [%expr fun status -> [%e set_status_expr]]]
-                                [@res.uapp]]
+                                        [%expr fun status -> [%e set_status_expr]]]]
                             | Some () ->
                               [%expr
                                 Async
@@ -328,11 +321,10 @@ let ast
                                       Uncurried.fn
                                         ~loc
                                         ~arity:1
-                                        [%expr fun status -> [%e set_status_expr]]]
-                                [@res.uapp]]]
+                                        [%expr fun status -> [%e set_status_expr]]]]]
                         with
                         | Some result -> nextFieldsStatuses := result
-                        | None -> ()]] [@res.uapp]]))
+                        | None -> ()]]]))
   in
   deps |> E.seq ~exp:(dep |> validate_dep) ~make:validate_dep
 ;;

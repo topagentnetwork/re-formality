@@ -5,22 +5,26 @@ open Ppxlib
 open Ast_helper
 
 let ensure_eq ~loc fields =
-  if fields
-     |> List.exists (fun ({ txt = lid }, _) ->
-       match lid with
-       | Lident "eq" -> true
-       | _ -> false)
+  if
+    fields
+    |> List.exists (fun ({ txt = lid }, _) ->
+      match lid with
+      | Lident "eq" -> true
+      | _ -> false)
   then fields
-  else (Lident "eq" |> lid ~loc, [%expr ( = )]) :: fields
+  else
+    ( Lident "eq" |> lid ~loc
+    , [%expr [%e Uncurried.fn ~loc ~arity:2 [%expr fun a b -> a == b]]] )
+    :: fields
 ;;
 
 let update_async_validator_of_field
-  ~(field : string)
-  ~(output_type : ItemType.t)
-  ~(async_mode : AsyncMode.t)
-  ~(validator_loc : Location.t)
-  ~(metadata : unit option)
-  fields
+      ~(field : string)
+      ~(output_type : ItemType.t)
+      ~(async_mode : AsyncMode.t)
+      ~(validator_loc : Location.t)
+      ~(metadata : unit option)
+      fields
   =
   fields
   |> ensure_eq ~loc:validator_loc
@@ -38,29 +42,28 @@ let update_async_validator_of_field
               fun (value, dispatch) ->
                 let validate =
                   ([%e expr]
-                    : ([%t output_type |> ItemType.unpack], message) Async.validateAsyncFn)
+                   : ([%t output_type |> ItemType.unpack], message) Async.validateAsyncFn)
                 in
-                (Async.validateAsync
-                   ~value
-                   ~validate
-                   ~andThen:
-                     [%e
-                       Uncurried.fn
-                         ~loc
-                         ~arity:1
-                         [%expr
-                           fun res ->
-                             (dispatch
-                                [%e
-                                  Exp.construct
-                                    (Lident
-                                       (FieldPrinter.apply_async_result_action ~field)
-                                     |> lid ~loc)
-                                    (Some
-                                       (Exp.tuple
-                                          [ Exp.ident (Lident "value" |> lid ~loc)
-                                          ; Exp.ident (Lident "res" |> lid ~loc)
-                                          ]))] [@res.uapp])]] [@res.uapp])]
+                Async.validateAsync
+                  ~value
+                  ~validate
+                  ~andThen:
+                    [%e
+                      Uncurried.fn
+                        ~loc
+                        ~arity:1
+                        [%expr
+                          fun res ->
+                            dispatch
+                              [%e
+                                Exp.construct
+                                  (Lident (FieldPrinter.apply_async_result_action ~field)
+                                   |> lid ~loc)
+                                  (Some
+                                     (Exp.tuple
+                                        [ Exp.ident (Lident "value" |> lid ~loc)
+                                        ; Exp.ident (Lident "res" |> lid ~loc)
+                                        ]))]]]]
         | Some () ->
           Uncurried.fn
             ~loc
@@ -69,50 +72,48 @@ let update_async_validator_of_field
               fun (value, metadata, dispatch) ->
                 let validate =
                   ([%e expr]
-                    : ( [%t output_type |> ItemType.unpack]
-                      , message
-                      , metadata )
-                      Async.validateAsyncFnWithMetadata)
+                   : ( [%t output_type |> ItemType.unpack]
+                       , message
+                       , metadata )
+                       Async.validateAsyncFnWithMetadata)
                 in
-                (Async.validateAsyncWithMetadata
-                   ~value
-                   ~validate
-                   ~metadata
-                   ~andThen:
-                     [%e
-                       Uncurried.fn
-                         ~loc
-                         ~arity:1
-                         [%expr
-                           fun res ->
-                             (dispatch
-                                [%e
-                                  Exp.construct
-                                    (Lident
-                                       (FieldPrinter.apply_async_result_action ~field)
-                                     |> lid ~loc)
-                                    (Some
-                                       (Exp.tuple
-                                          [ Exp.ident (Lident "value" |> lid ~loc)
-                                          ; Exp.ident (Lident "res" |> lid ~loc)
-                                          ]))] [@res.uapp])]] [@res.uapp])]
+                Async.validateAsyncWithMetadata
+                  ~value
+                  ~validate
+                  ~metadata
+                  ~andThen:
+                    [%e
+                      Uncurried.fn
+                        ~loc
+                        ~arity:1
+                        [%expr
+                          fun res ->
+                            dispatch
+                              [%e
+                                Exp.construct
+                                  (Lident (FieldPrinter.apply_async_result_action ~field)
+                                   |> lid ~loc)
+                                  (Some
+                                     (Exp.tuple
+                                        [ Exp.ident (Lident "value" |> lid ~loc)
+                                        ; Exp.ident (Lident "res" |> lid ~loc)
+                                        ]))]]]]
       in
       ( v_lid
       , (match async_mode with
          | OnBlur -> fn
-         | OnChange -> [%expr Debouncer.make ~wait:debounceInterval [%e fn] [@res.uapp]])
-      )
+         | OnChange -> [%expr Debouncer.make ~wait:debounceInterval [%e fn]]) )
     | _ -> v_lid, expr)
 ;;
 
 let update_async_validator_of_field_of_collection
-  ~(field : string)
-  ~(collection : Collection.t)
-  ~(output_type : ItemType.t)
-  ~(async_mode : AsyncMode.t)
-  ~(validator_loc : Location.t)
-  ~(metadata : unit option)
-  fields
+      ~(field : string)
+      ~(collection : Collection.t)
+      ~(output_type : ItemType.t)
+      ~(async_mode : AsyncMode.t)
+      ~(validator_loc : Location.t)
+      ~(metadata : unit option)
+      fields
   =
   fields
   |> ensure_eq ~loc:validator_loc
@@ -130,32 +131,32 @@ let update_async_validator_of_field_of_collection
               fun (value, index, dispatch) ->
                 let validate =
                   ([%e expr]
-                    : ([%t output_type |> ItemType.unpack], message) Async.validateAsyncFn)
+                   : ([%t output_type |> ItemType.unpack], message) Async.validateAsyncFn)
                 in
-                (Async.validateAsync
-                   ~value
-                   ~validate
-                   ~andThen:
-                     [%e
-                       Uncurried.fn
-                         ~loc
-                         ~arity:1
-                         [%expr
-                           fun res ->
-                             (dispatch
-                                [%e
-                                  Exp.construct
-                                    (Lident
-                                       (FieldOfCollectionPrinter.apply_async_result_action
-                                          ~collection
-                                          ~field)
-                                     |> lid ~loc)
-                                    (Some
-                                       (Exp.tuple
-                                          [ Exp.ident (Lident "value" |> lid ~loc)
-                                          ; Exp.ident (Lident "index" |> lid ~loc)
-                                          ; Exp.ident (Lident "res" |> lid ~loc)
-                                          ]))] [@res.uapp])]] [@res.uapp])]
+                Async.validateAsync
+                  ~value
+                  ~validate
+                  ~andThen:
+                    [%e
+                      Uncurried.fn
+                        ~loc
+                        ~arity:1
+                        [%expr
+                          fun res ->
+                            dispatch
+                              [%e
+                                Exp.construct
+                                  (Lident
+                                     (FieldOfCollectionPrinter.apply_async_result_action
+                                        ~collection
+                                        ~field)
+                                   |> lid ~loc)
+                                  (Some
+                                     (Exp.tuple
+                                        [ Exp.ident (Lident "value" |> lid ~loc)
+                                        ; Exp.ident (Lident "index" |> lid ~loc)
+                                        ; Exp.ident (Lident "res" |> lid ~loc)
+                                        ]))]]]]
         | Some () ->
           Uncurried.fn
             ~loc
@@ -164,50 +165,49 @@ let update_async_validator_of_field_of_collection
               fun (value, index, metadata, dispatch) ->
                 let validate =
                   ([%e expr]
-                    : ( [%t output_type |> ItemType.unpack]
-                      , message
-                      , metadata )
-                      Async.validateAsyncFnWithMetadata)
+                   : ( [%t output_type |> ItemType.unpack]
+                       , message
+                       , metadata )
+                       Async.validateAsyncFnWithMetadata)
                 in
-                (Async.validateAsyncWithMetadata
-                   ~value
-                   ~validate
-                   ~metadata
-                   ~andThen:
-                     [%e
-                       Uncurried.fn
-                         ~loc
-                         ~arity:1
-                         [%expr
-                           fun res ->
-                             (dispatch
-                                [%e
-                                  Exp.construct
-                                    (Lident
-                                       (FieldOfCollectionPrinter.apply_async_result_action
-                                          ~collection
-                                          ~field)
-                                     |> lid ~loc)
-                                    (Some
-                                       (Exp.tuple
-                                          [ Exp.ident (Lident "value" |> lid ~loc)
-                                          ; Exp.ident (Lident "index" |> lid ~loc)
-                                          ; Exp.ident (Lident "res" |> lid ~loc)
-                                          ]))] [@res.uapp])]] [@res.uapp])]
+                Async.validateAsyncWithMetadata
+                  ~value
+                  ~validate
+                  ~metadata
+                  ~andThen:
+                    [%e
+                      Uncurried.fn
+                        ~loc
+                        ~arity:1
+                        [%expr
+                          fun res ->
+                            dispatch
+                              [%e
+                                Exp.construct
+                                  (Lident
+                                     (FieldOfCollectionPrinter.apply_async_result_action
+                                        ~collection
+                                        ~field)
+                                   |> lid ~loc)
+                                  (Some
+                                     (Exp.tuple
+                                        [ Exp.ident (Lident "value" |> lid ~loc)
+                                        ; Exp.ident (Lident "index" |> lid ~loc)
+                                        ; Exp.ident (Lident "res" |> lid ~loc)
+                                        ]))]]]]
       in
       ( v_lid
       , (match async_mode with
          | OnBlur -> fn
-         | OnChange -> [%expr Debouncer.make ~wait:debounceInterval [%e fn] [@res.uapp]])
-      )
+         | OnChange -> [%expr Debouncer.make ~wait:debounceInterval [%e fn]]) )
     | _ -> v_lid, expr)
 ;;
 
 let ast
-  ~(scheme : Scheme.t)
-  ~(metadata : unit option)
-  ~(validators : ValidatorsRecord.t)
-  (value_binding : value_binding)
+      ~(scheme : Scheme.t)
+      ~(metadata : unit option)
+      ~(validators : ValidatorsRecord.t)
+      (value_binding : value_binding)
   =
   let fields =
     validators.fields
@@ -256,10 +256,10 @@ let ast
                  | _ -> expr) ))
          | Some
              (Collection
-               { collection
-               ; fields = collection_fields
-               ; validator = collection_validator
-               }) ->
+                { collection
+                ; fields = collection_fields
+                ; validator = collection_validator
+                }) ->
            ( f_lid
            , (match expr with
               | { pexp_desc = Pexp_record (collection_validator_fields, None)

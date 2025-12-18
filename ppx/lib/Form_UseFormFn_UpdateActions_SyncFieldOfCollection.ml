@@ -2,13 +2,13 @@ open Meta
 open Ppxlib
 
 let ast
-  ~loc
-  ~(validator : (FieldValidator.sync, unit) result)
-  ~(metadata : unit option)
-  ~(field_status_expr : expression)
-  ~(field_input_expr : expression)
-  ~(validator_expr : expression)
-  ~(set_status_expr : expression)
+      ~loc
+      ~(validator : (FieldValidator.sync, unit) result)
+      ~(metadata : unit option)
+      ~(field_status_expr : expression)
+      ~(field_input_expr : expression)
+      ~(validator_expr : expression)
+      ~(set_status_expr : expression)
   =
   [%expr
     Update
@@ -32,7 +32,7 @@ let ast
                          Uncurried.fn
                            ~loc
                            ~arity:1
-                           [%expr fun status -> [%e set_status_expr]]] [@res.uapp]]
+                           [%expr fun status -> [%e set_status_expr]]]]
                | Some () ->
                  [%expr
                    validateFieldOfCollectionOnChangeWithValidatorAndMetadata
@@ -47,7 +47,7 @@ let ast
                          Uncurried.fn
                            ~loc
                            ~arity:1
-                           [%expr fun status -> [%e set_status_expr]]] [@res.uapp]])
+                           [%expr fun status -> [%e set_status_expr]]]])
             | Ok (Optional None) ->
               [%expr
                 validateFieldOnChangeWithoutValidator
@@ -57,6 +57,6 @@ let ast
                       Uncurried.fn
                         ~loc
                         ~arity:1
-                        [%expr fun status -> [%e set_status_expr]]] [@res.uapp]]]
+                        [%expr fun status -> [%e set_status_expr]]]]]
       }]
 ;;

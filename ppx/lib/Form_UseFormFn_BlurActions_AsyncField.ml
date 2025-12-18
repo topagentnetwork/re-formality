@@ -3,13 +3,13 @@ open AstHelpers
 open Ppxlib
 
 let ast
-  ~loc
-  ~(field : Scheme.field)
-  ~(metadata : unit option)
-  ~(optionality : FieldOptionality.t option)
-  ~(field_status_expr : expression)
-  ~(validator_expr : expression)
-  ~(set_status_expr : expression)
+      ~loc
+      ~(field : Scheme.field)
+      ~(metadata : unit option)
+      ~(optionality : FieldOptionality.t option)
+      ~(field_status_expr : expression)
+      ~(validator_expr : expression)
+      ~(set_status_expr : expression)
   =
   [%expr
     let result =
@@ -22,8 +22,7 @@ let ast
               ~fieldStatus:[%e field_status_expr]
               ~validator:[%e validator_expr]
               ~setStatus:
-                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]
-            [@res.uapp]]
+                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]]
         | None, Some OptionType ->
           [%expr
             Async.validateFieldOfOptionTypeOnBlur
@@ -31,8 +30,7 @@ let ast
               ~fieldStatus:[%e field_status_expr]
               ~validator:[%e validator_expr]
               ~setStatus:
-                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]
-            [@res.uapp]]
+                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]]
         | None, Some StringType ->
           [%expr
             Async.validateFieldOfStringTypeOnBlur
@@ -40,8 +38,7 @@ let ast
               ~fieldStatus:[%e field_status_expr]
               ~validator:[%e validator_expr]
               ~setStatus:
-                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]
-            [@res.uapp]]
+                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]]
         | None, Some OptionStringType ->
           [%expr
             Async.validateFieldOfOptionStringTypeOnBlur
@@ -49,8 +46,7 @@ let ast
               ~fieldStatus:[%e field_status_expr]
               ~validator:[%e validator_expr]
               ~setStatus:
-                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]
-            [@res.uapp]]
+                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]]
         | Some (), None ->
           [%expr
             Async.validateFieldOnBlurWithMetadata
@@ -59,8 +55,7 @@ let ast
               ~validator:[%e validator_expr]
               ~metadata
               ~setStatus:
-                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]
-            [@res.uapp]]
+                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]]
         | Some (), Some OptionType ->
           [%expr
             Async.validateFieldOfOptionTypeOnBlurWithMetadata
@@ -69,8 +64,7 @@ let ast
               ~validator:[%e validator_expr]
               ~metadata
               ~setStatus:
-                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]
-            [@res.uapp]]
+                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]]
         | Some (), Some StringType ->
           [%expr
             Async.validateFieldOfStringTypeOnBlurWithMetadata
@@ -79,8 +73,7 @@ let ast
               ~validator:[%e validator_expr]
               ~metadata
               ~setStatus:
-                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]
-            [@res.uapp]]
+                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]]
         | Some (), Some OptionStringType ->
           [%expr
             Async.validateFieldOfOptionStringTypeOnBlurWithMetadata
@@ -89,8 +82,7 @@ let ast
               ~validator:[%e validator_expr]
               ~metadata
               ~setStatus:
-                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]
-            [@res.uapp]]]
+                [%e Uncurried.fn ~loc ~arity:1 [%expr fun status -> [%e set_status_expr]]]]]
     in
     match result with
     | None -> NoUpdate
