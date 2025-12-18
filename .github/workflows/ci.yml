@@ -45,6 +45,13 @@ jobs:
         uses: ocaml/setup-ocaml@v2
         with:
           ocaml-compiler: ${{ matrix.ocaml-version }}
+          opam-depext: false
+
+      - name: Pin Opam deps
+        run: |
+          opam pin add dune https://github.com/ocaml/dune.git#7cbb0e7 # 3.11.1
+          opam pin add ppxlib https://github.com/ocaml-ppx/ppxlib.git#f0496c9 # 0.30.0
+          opam pin add alcotest https://github.com/mirage/alcotest.git#927088f # 1.7.0
 
       - name: Install Opam deps
         run: opam install . --deps-only --with-test
@@ -106,6 +113,13 @@ jobs:
         uses: ocaml/setup-ocaml@v2
         with:
           ocaml-compiler: ${{ matrix.ocaml-version }}
+          opam-depext: false
+
+      - name: Pin Opam deps
+        run: |
+          opam pin add dune https://github.com/ocaml/dune.git#7cbb0e7 # 3.11.1
+          opam pin add ppxlib https://github.com/ocaml-ppx/ppxlib.git#f0496c9 # 0.30.0
+          opam pin add alcotest https://github.com/mirage/alcotest.git#927088f # 1.7.0
 
       - name: Install Opam deps
         run: opam install . --deps-only --with-test
@@ -176,6 +190,12 @@ jobs:
 
       - name: Setup OCaml ${{ matrix.ocaml-version }}
         run: opam init -a --disable-sandboxing --compiler=${{ matrix.ocaml-version }}
+
+      - name: Pin Opam deps
+        run: |
+          opam pin add dune https://github.com/ocaml/dune.git#7cbb0e7 # 3.11.1
+          opam pin add ppxlib https://github.com/ocaml-ppx/ppxlib.git#f0496c9 # 0.30.0
+          opam pin add alcotest https://github.com/mirage/alcotest.git#927088f # 1.7.0
 
       - name: Install Opam deps
         run: opam install . --deps-only --with-test
