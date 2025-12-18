@@ -11,12 +11,12 @@ on:
 jobs:
   validate:
     name: Validate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04]
         ocaml-version: [4.14.1]
-        node-version: [16.x]
+        node-version: [20.x]
 
     steps:
       - name: Checkout repo
@@ -77,7 +77,7 @@ jobs:
       matrix:
         os: [macos-13, macos-14]
         ocaml-version: [4.14.1]
-        node-version: [16.x]
+        node-version: [20.x]
 
     steps:
       - name: Checkout repo
@@ -142,10 +142,10 @@ jobs:
       - validate
     strategy:
       matrix:
-        host-os: [ubuntu-latest]
+        host-os: [ubuntu-22.04]
         container-os: [linux-alpine-3]
         ocaml-version: [4.14.1]
-        node-version: [16.x]
+        node-version: [20.x]
     container:
       image: alex35mil/alpine-ocaml-opam-node-yarn:alpine-3.19-ocaml-4.14-node-16.20-yarn-1.22-o5gm
 
@@ -163,6 +163,13 @@ jobs:
         with:
           path: ${{ steps.print-yarn-cache.outputs.yarn-cache }}
           key: ${{ matrix.container-os }}-yarn-${{ hashFiles('yarn.lock', '*/yarn.lock') }}
+
+      - name: Use Node 20 in container
+        run: |
+          apk update
+          apk add --no-cache nodejs npm
+          node -v
+          npm -v
 
       - name: Install Yarn deps
         run: yarn install
@@ -189,98 +196,22 @@ jobs:
           name: ${{ matrix.container-os }}
           path: _build/default/ppx/bin/bin.exe
 
-  build_windows:
-    name: Build on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs:
-      - validate
-    strategy:
-      matrix:
-        os: [windows-latest]
-        ocaml-version: [4.14.1]
-        node-version: [16.x]
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Print Yarn cache
-        id: print-yarn-cache
-        run: echo "::set-output name=yarn-cache::$(yarn cache dir)" # Using the old way as the new way doesn't work on windows
-
-      - name: Restore Yarn cache
-        id: yarn-cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.print-yarn-cache.outputs.yarn-cache }}
-          key: ${{ matrix.os }}-yarn-${{ hashFiles('yarn.lock', '*/yarn.lock') }}
-
-      - name: Install Yarn deps
-        run: yarn install
-
-      - name: Apply Opam deps patch
-        run: |
-          $lastCommitterName = git log -1 --pretty=format:'%an'
-          $lastCommitterEmail = git log -1 --pretty=format:'%ae'
-          git config user.name "$lastCommitterName"
-          git config user.email "$lastCommitterEmail"
-          git apply windows.patch
-          git add .
-          git commit -m "Patch opam deps"
-
-      - name: Setup OCaml ${{ matrix.ocaml-version }}
-        uses: ocaml/setup-ocaml@v2
-        with:
-          ocaml-compiler: ${{ matrix.ocaml-version }}
-
-      - name: Pin Opam deps
-        run: |
-          opam pin add dune https://github.com/ocaml/dune.git#7cbb0e7 # 3.11.1
-          opam pin add ppxlib https://github.com/ocaml-ppx/ppxlib.git#f0496c9 # 0.30.0
-          opam pin add alcotest https://github.com/mirage/alcotest.git#927088f # 1.7.0
-
-      - name: Install Opam deps
-        run: opam install . --deps-only --with-test
-
-      - name: Build PPX
-        run: opam exec -- dune build
-
-      - name: Build ReScript lib
-        run: |
-          cd lib
-          yarn run build
-          cd ../examples
-          yarn run build
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.os }}
-          path: _build/default/ppx/bin/bin.exe
-
   prepare_release:
     needs:
       - build_macos
       - build_linux
-      - build_windows
     name: Prepare release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Node ${{ matrix.node-version }}
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 16.x
+          node-version: 20.x
 
       - name: Download macOS x86 artifacts
         uses: actions/download-artifact@v4
@@ -300,11 +231,6 @@ jobs:
           name: linux-alpine-3
           path: _bin/linux
 
-      - name: Download Windows artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: windows-latest
-          path: _bin/windows
 
       - name: Move artifacts
         run: |
@@ -312,7 +238,6 @@ jobs:
           mv _bin/darwin/intel/bin.exe _release/bin/re-formality-ppx-darwin-x64.exe
           mv _bin/darwin/arm/bin.exe _release/bin/re-formality-ppx-darwin-arm64.exe
           mv _bin/linux/bin.exe _release/bin/re-formality-ppx-linux-x64.exe
-          mv _bin/windows/bin.exe _release/bin/re-formality-ppx-win-x64.exe
           rm -rf _bin
 
       - name: Move lib files
