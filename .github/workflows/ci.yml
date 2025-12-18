@@ -71,8 +71,6 @@ jobs:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     if: startsWith(github.ref, 'refs/tags/v')
-    needs:
-      - validate
     strategy:
       matrix:
         os: [macos-13, macos-14]
@@ -138,8 +136,6 @@ jobs:
     name: Build on ${{ matrix.container-os }}
     runs-on: ${{ matrix.host-os }}
     if: startsWith(github.ref, 'refs/tags/v')
-    needs:
-      - validate
     strategy:
       matrix:
         host-os: [ubuntu-22.04]
