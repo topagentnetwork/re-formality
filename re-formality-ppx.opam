@@ -14,8 +14,8 @@ dev-repo: "git+https://github.com/MinimaHQ/re-formality.git"
 depends: [
   "ocaml" { = "4.14.1" }
   "dune" { >= "3.15.0" }
-  "ppxlib" { = "0.30.0" }
-  "alcotest" { = "1.7.0" }
+  "ppxlib"
+  "alcotest" { >= "1.7.0" }
 ]
 build: [
   ["dune" "build" "-p" name "-j" jobs]
