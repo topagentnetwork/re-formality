@@ -15,7 +15,6 @@ jobs:
     name: Validate
     if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-22.04
-    if: ${{ false }}
     strategy:
       matrix:
         os: [ubuntu-22.04]
