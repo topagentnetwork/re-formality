@@ -17,6 +17,9 @@ depends: [
   "ppxlib"
   "alcotest" { >= "1.7.0" }
 ]
+pin-depends: [
+  ["ppxlib.dev" "git+https://github.com/ocaml-ppx/ppxlib.git#f0496c9ce731dcffbd26e208b0596627607a496b"]
+]
 build: [
   ["dune" "build" "-p" name "-j" jobs]
 ]
