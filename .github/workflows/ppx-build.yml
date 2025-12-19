@@ -1,0 +1,89 @@
+name: Build PPX Artifacts
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build_macos:
+    name: Build PPX on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, macos-15-intel]
+        ocaml: [4.14.1]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup OCaml ${{ matrix.ocaml }}
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: ${{ matrix.ocaml }}
+          dune-cache: true
+          cache-prefix: v2
+          opam-local-packages: re-formality-ppx.opam
+          opam-pin: true
+          opam-depext: false
+          opam-disable-sandboxing: true
+
+      - name: opam update
+        run: opam update -y
+
+      - name: Install opam deps
+        run: opam install . --deps-only -y
+
+      - name: Build PPX (macOS)
+        run: opam exec -- dune build ppx/bin/bin.exe
+
+      - name: Upload PPX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ppx-${{ matrix.os }}
+          path: _build/default/ppx/bin/bin.exe
+
+  build_linux:
+    name: Build PPX on Linux
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        ocaml: [4.14.1]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup OCaml ${{ matrix.ocaml }}
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: ${{ matrix.ocaml }}
+          dune-cache: true
+          cache-prefix: v2
+          opam-local-packages: re-formality-ppx.opam
+          opam-pin: true
+          opam-depext: false
+          opam-disable-sandboxing: true
+
+      - name: opam update
+        run: opam update -y
+
+      - name: Install opam deps
+        run: opam install . --deps-only -y
+
+      - name: Build PPX (Linux)
+        run: opam exec -- dune build ppx/bin/bin.exe
+
+      - name: Upload PPX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ppx-linux-ubuntu-22.04
+          path: _build/default/ppx/bin/bin.exe
