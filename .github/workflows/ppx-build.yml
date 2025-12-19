@@ -53,6 +53,8 @@ jobs:
   build_linux:
     name: Build PPX on Linux
     runs-on: ubuntu-22.04
+    container:
+      image: debian:bullseye
     strategy:
       fail-fast: false
       matrix:
@@ -62,12 +64,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install system dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential \
+            curl \
+            ca-certificates \
+            git \
+            unzip \
+            bubblewrap
+
       - name: Setup OCaml ${{ matrix.ocaml }}
         uses: ocaml/setup-ocaml@v3
         with:
           ocaml-compiler: ${{ matrix.ocaml }}
           dune-cache: true
-          cache-prefix: v2
+          cache-prefix: v2-bullseye
           opam-local-packages: re-formality-ppx.opam
           opam-pin: true
           opam-depext: false
@@ -80,7 +93,12 @@ jobs:
         run: opam install . --deps-only -y
 
       - name: Build PPX (Linux)
-        run: opam exec -- dune build ppx/bin/bin.exe
+        run: opam exec -- dune build --profile static ppx/bin/bin.exe
+
+      - name: Strip PPX binary
+        run: |
+          chmod +w _build/default/ppx/bin/bin.exe || true
+          strip _build/default/ppx/bin/bin.exe || true
 
       - name: Upload PPX artifact
         uses: actions/upload-artifact@v4
