@@ -150,7 +150,7 @@ let ast ~loc ~(metadata : unit option) (scheme : Scheme.t) =
                        Update
                          { state with
                            input = nextInput
-                         ; fieldsStatuses = !nextFieldsStatuses
+                         ; fieldsStatuses = [%e E.ref_ ~loc "nextFieldsStatuses"]
                          ; collectionsStatuses = [%e update_collections_statuses]
                          }]
                    | Ok None ->
@@ -158,7 +158,7 @@ let ast ~loc ~(metadata : unit option) (scheme : Scheme.t) =
                        Update
                          { state with
                            input = nextInput
-                         ; fieldsStatuses = !nextFieldsStatuses
+                         ; fieldsStatuses = [%e E.ref_ ~loc "nextFieldsStatuses"]
                          }]]])
           :: Exp.case
                add_action_pat
@@ -203,7 +203,7 @@ let ast ~loc ~(metadata : unit option) (scheme : Scheme.t) =
                           Update
                             { state with
                               input = nextInput
-                            ; fieldsStatuses = !nextFieldsStatuses
+                            ; fieldsStatuses = [%e E.ref_ ~loc "nextFieldsStatuses"]
                             ; collectionsStatuses = [%e update_collections_statuses]
                             }]
                       | Ok None ->
@@ -211,7 +211,7 @@ let ast ~loc ~(metadata : unit option) (scheme : Scheme.t) =
                           Update
                             { state with
                               input = nextInput
-                            ; fieldsStatuses = !nextFieldsStatuses
+                            ; fieldsStatuses = [%e E.ref_ ~loc "nextFieldsStatuses"]
                             }]]])
           :: acc)
        []
