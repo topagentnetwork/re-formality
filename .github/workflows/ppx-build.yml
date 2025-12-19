@@ -32,7 +32,6 @@ jobs:
           cache-prefix: v2
           opam-local-packages: re-formality-ppx.opam
           opam-pin: true
-          opam-depext: false
           opam-disable-sandboxing: true
 
       - name: opam update
@@ -72,6 +71,7 @@ jobs:
             curl \
             ca-certificates \
             git \
+            rsync \
             unzip \
             bubblewrap
 
@@ -81,9 +81,7 @@ jobs:
           ocaml-compiler: ${{ matrix.ocaml }}
           dune-cache: true
           cache-prefix: v2-bullseye
-          opam-local-packages: re-formality-ppx.opam
-          opam-pin: true
-          opam-depext: false
+          opam-pin: false
           opam-disable-sandboxing: true
 
       - name: opam update
