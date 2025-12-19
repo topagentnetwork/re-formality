@@ -75,7 +75,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-13, macos-14]
+        os: [macos-15-intel, macos-15]
         ocaml-version: [4.14.1]
         node-version: [20.x]
 
@@ -205,13 +205,13 @@ jobs:
       - name: Download macOS x86 artifacts
         uses: actions/download-artifact@v4
         with:
-          name: macos-13
+          name: macos-15-intel
           path: _bin/darwin/intel
 
       - name: Download macOS ARM artifacts
         uses: actions/download-artifact@v4
         with:
-          name: macos-14
+          name: macos-15
           path: _bin/darwin/arm
 
       - name: Download Linux artifacts
